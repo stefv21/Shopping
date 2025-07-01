@@ -20,7 +20,10 @@ export default function Welcome() {
     try {
       const { user } = await signInAnonymously(auth);
       console.log('🔐 Signed in anonymously with UID', user.uid);
-      router.push('/shoppinglists');
+      router.push({ 
+        pathname: '/shoppinglists', 
+        params: { userID: user.uid },
+       });
     } catch (e) {
       console.error('Auth error:', e);
       Alert.alert('Error', 'Could not sign in. Please try again.');

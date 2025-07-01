@@ -14,52 +14,56 @@ import {
 import {
   collection,
   addDoc,
-  onSnapshot
+  onSnapshot,
+  query,
+  where,
 } from 'firebase/firestore';
 import { db } from '../firebase';
 
-export default function ShoppingLists() {
+export default function ShoppingLists({ userID }) {
   const [lists, setLists]       = useState([]);
   const [listName, setListName] = useState('');
   const [item1, setItem1]       = useState('');
   const [item2, setItem2]       = useState('');
 
-  // Real-time listener
+  // Real-time listener filtered by uid == userID
   useEffect(() => {
-    const unsub = onSnapshot(
+    const q = query(
       collection(db, 'shoppinglists'),
+      where('uid', '==', userID)
+    );
+    const unsubscribe = onSnapshot(
+      q,
       snapshot => {
         const newLists = [];
-        snapshot.forEach(doc =>
-          newLists.push({ id: doc.id, ...doc.data() })
-        );
+        snapshot.forEach(doc => {
+          newLists.push({ id: doc.id, ...doc.data() });
+        });
         setLists(newLists);
       },
       error => {
         console.error('Listener error:', error);
+        Alert.alert('Error', 'Could not load your lists.');
       }
     );
+    return unsubscribe;
+  }, [userID]);
 
-    // Cleanup on unmount
-    return () => unsub();
-  }, []);
-
-  // Add a new list
+  // adds a new list document with uid
   const addShoppingList = async newList => {
     try {
       const ref = await addDoc(collection(db, 'shoppinglists'), newList);
       if (ref.id) {
         Alert.alert(`The list "${listName}" has been added.`);
-        // inputs will reset when real-time listener updates `lists`
         setListName('');
         setItem1('');
         setItem2('');
       } else {
-        Alert.alert('Unable to add. Please try later');
+        Alert.alert('Unable to add. Please try again.');
       }
     } catch (e) {
       console.error('Error adding list:', e);
-      Alert.alert('Error adding list. See console for details.');
+      Alert.alert('Error', 'Could not add your list.');
     }
   };
 
@@ -100,7 +104,11 @@ export default function ShoppingLists() {
         <TouchableOpacity
           style={styles.addButton}
           onPress={() => {
-            const newList = { name: listName, items: [item1, item2] };
+            const newList = {
+              uid:   userID,
+              name:  listName,
+              items: [item1, item2],
+            };
             addShoppingList(newList);
           }}
         >

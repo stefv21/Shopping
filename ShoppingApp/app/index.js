@@ -1,7 +1,7 @@
 // app/index.js
 import React from 'react';
-import ShoppingLists from '../components/ShoppingLists';
+import Welcome from '../components/Welcome';
 
 export default function Index() {
-  return <ShoppingLists />;
+  return <Welcome />;
 }

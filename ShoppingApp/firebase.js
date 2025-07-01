@@ -1,6 +1,7 @@
 // firebase.js (at project root)
 import { initializeApp } from 'firebase/app';
 import { getFirestore }   from 'firebase/firestore';
+import { getAuth,           signInAnonymously } from 'firebase/auth';
 
 const firebaseConfig = {
   apiKey:           "AIzaSyCKtiv6C_NTpfkTx2OxpcFUHVTfFr86VcE",
@@ -13,9 +14,8 @@ const firebaseConfig = {
 
 // initialize the app
 const app = initializeApp(firebaseConfig);
-
-// initialize and export Firestore
 export const db = getFirestore(app);
+export const auth = getAuth(app);
 
 // OPTIONAL: add this log so you can confirm it runs when Metro starts
 console.log('🔥 firebase.js loaded, db is:', db);
